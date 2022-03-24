@@ -1,0 +1,118 @@
+{{define "home"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/navigation.css">
+    <link rel="shortcut icon" href="#" />
+    <title>Forum</title>
+</head>
+
+<body>
+    <nav class="navigation-header">
+        <a href="/" id="main-page">
+            <h1>Forum</h1>
+        </a>
+        {{ if not .User.Authorized }}
+        <a href="/login" id="login">Log In</a> {{ else }}
+        <a href="/login" id="login">Log Out</a> {{ end }}
+    </nav>
+
+    <div class="feed">
+        <div class="feed-top">
+            <h2> Welcome, {{ .User.Username}}! </h2>
+
+            <form class="filter" action="/home" method="GET">
+                <select name="filter">
+                    {{ if .User.Authorized }}
+                    <option value="favourites"> favourites </option>
+                    <option value="my-posts"> my posts </option>
+                    {{ end }}
+
+                    {{ range .Categories }}
+                    <option value="{{.ID}}"> {{.Name}}</option>
+                    {{ end }}
+
+                </select>
+                <button id="send" type="submit"> Filter </button>
+            </form>
+
+        </div>
+
+
+        {{ if .User.Authorized }}
+        <div class="create-post">
+            <form enctype="multipart/form-data" action="/post/" method="POST">
+                <textarea type="text" name="text" id="input-post" placeholder="Create post..." required></textarea>
+                
+                <label class="upload">
+                    <input type="file" name="Image" accept="image/png, image/jpeg, image/gif"
+                    autocomplete="off"
+                    hidden/>
+                    <span> Add image </span>
+                </label>
+               
+                <div class="categories">
+                    <button id="send" type="submit"> Submit </button>
+
+                    <div class="category-checkbox">
+                        {{ range .Categories }}
+                        <label><input type="checkbox" name="category" value="{{.ID}}"> {{.Name}}</label> 
+                        {{ end }}
+                    </div>
+                </div>
+            </form>
+        </div>
+        {{ end }} 
+        
+        {{ range .Posts }}
+        <a href="post/{{ .ID }}">
+            <div class="post" id="{{.ID}}">
+
+                <div class="post-header">
+                    <div>
+                        <span> <b>{{ .Author }} </b></span>
+                        <span>·</span>
+                        <span>{{ .CategoryName }}</span>
+                    </div>
+                    <time> {{ .CreationDate.Format "02-Jan 15:04" }}</time>
+                </div>
+
+                <pre>{{ .Text }}</pre>
+
+                <div class="post-image">
+                    <img src="{{ .Image }}"></img>
+                </div>
+                
+                <div class="post-bottom">
+
+                    <div>
+                        <span style="color: #518fa1;"> 🗩 </span>
+                        <span> {{ .Comments }} </span>
+                    </div>
+
+                    <form class="post-rating" action="/like" method="POST">
+                        <input name="objType" value="1" type="hidden">
+                        <input name="objID" value="{{ .ID }}" type="hidden">
+
+                        <button class="rateButton" type="submit" name="action" value="1" {{ if eq .UserRate 1 }} style="background-color: #CDF2CA;" {{ end }}> ⮝
+                        </button>
+
+                        <span class="rating"> {{ .Rating }} </span>
+
+                        <button class="rateButton" type="submit" name="action" value="2" {{ if eq .UserRate 2 }} style="background-color: #FFDEFA;" {{ end }}> ⮟
+                        </button>
+                    </form>
+
+                </div>
+            </div>
+        </a>
+        {{ end }}
+    </div>
+</body>
+
+</html>
+{{end}}

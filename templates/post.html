@@ -1,0 +1,110 @@
+{{define "post"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/navigation.css">
+    <link rel="shortcut icon" href="#" />
+
+    <title>Forum</title>
+</head>
+
+<body>
+    <nav class="navigation-header">
+        <a href="/" id="main-page">
+            <h1>Forum</h1>
+        </a>
+        {{ if not .User.Authorized }}
+        <a href="/login" id="login">Log In</a> {{ else }}
+        <a href="/login" id="login">Log Out</a> {{ end }}
+    </nav>
+
+    <div class="feed">
+        <div class="post">
+            <div class="post-header">
+            <div>
+                <span> <b> {{ .Post.Author }} </b></span>
+                <span>·</span>
+                <span>{{ .Post.CategoryName }}</span>
+            </div>
+                <time> {{ .Post.CreationDate.Format "02-Jan 15:04" }}</time>
+            </div>
+
+            <pre>{{ .Post.Text }}</pre>
+
+            <img src="{{ .Post.Image }}"></img>
+
+            <div class="post-bottom">
+                <div>
+                    <span style="color: #518fa1;"> 🗩 </span>
+                    <span> {{ .Post.Comments }} </span>
+                </div>
+
+                <form class="post-rating" action="/like" method="POST">
+                    <input name="objType" value="1" type="hidden">
+                    <input name="objID" value="{{ .Post.ID }}" type="hidden">
+
+                    <button class="rateButton" type="submit" name="action" value="1" {{ if eq .Post.UserRate 1 }}
+                        style="background-color: #CDF2CA;" {{ end }}> ⮝
+                    </button>
+
+                    <span class="rating"> {{ .Post.Rating }} </span>
+
+                    <button class="rateButton" type="submit" name="action" value="2" {{ if eq .Post.UserRate 2 }}
+                        style="background-color: #FFDEFA;" {{ end }}> ⮟
+                    </button>
+                </form>
+
+            </div>
+        </div>
+
+        {{ if .User.Authorized }}
+        <div class="create-comment">
+            <form action="/comment/" method="POST">
+                <textarea name="text" id="input-comment" placeholder="Create comment..." required></textarea>
+                <input name="postID" value="{{.Post.ID}}" type="hidden">
+                <p>
+                    <button id="send" type="submit"> Submit </button>
+                </p>
+            </form>
+        </div>
+        {{ end }}
+
+        <div class="comments">
+            <span> Comments: </span> {{ range .Comments }}
+
+            <div class="comment" id="{{ .ID }}">
+                <a href="{{.ID}}"></a>
+                <div class="comment-header">
+                    <span> <b>{{ .Author }} </b> </span>
+                    <time> {{ .CreationDate.Format "02-Jan 15:04" }}</time>
+                </div>
+
+                <pre>{{ .Text }}</pre>
+
+                <form class="comment-rating" action="/like" method="POST">
+                    <input name="objType" value="2" type="hidden">
+                    <input name="objID" value="{{ .ID }}" type="hidden">
+
+                    <button class="rateButton" type="submit" name="action" value="1" {{ if eq .UserRate 1 }}
+                        style="background-color: #CDF2CA;" {{ end }}> ⮝ </button>
+
+                    <span class="rating"> {{ .Rating }} </span>
+
+                    <button class="rateButton" type="submit" name="action" value="2" {{ if eq .UserRate 2 }}
+                        style="background-color: #FFDEFA;" {{ end }}> ⮟ </button>
+                </form>
+
+
+            </div>
+            {{ end }}
+        </div>
+
+    </div>
+</body>
+
+</html>
+{{end}}
